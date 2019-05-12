@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ContentModelStore">
+    <e p="C:\Users\satta\.Rider2018.3\config\extensions" t="IncludeRecursive" />
+    <e p="C:\Users\satta\.Rider2018.3\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\satta\.Rider2018.3\system\resharper-host\local\Transient\ReSharperHost\v183\SolutionCaches\_MenuExtensionSamples.-483521636.00" t="ExcludeRecursive" />
+    <e p="E:\GIT_REPO_UNITY\MenuExtensionSamples1\MenuExtensionSamples" t="IncludeRecursive">
+      <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
+      <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
+      <e p="Assets" t="Include">
+        <e p="Editor" t="Include">
+          <e p="TestObjectEditor.cs" t="Include" />
+        </e>
+        <e p="Scripts" t="Include">
+          <e p="TestObject.cs" t="Include" />
+        </e>
+      </e>
+      <e p="Library" t="ExcludeRecursive" />
+      <e p="MenuExtensionSamples.sln" t="IncludeFlat" />
+      <e p="obj" t="ExcludeRecursive" />
+      <e p="packages" t="ExcludeRecursive" />
+      <e p="Temp" t="ExcludeRecursive">
+        <e p="bin" t="ExcludeRecursive" />
+      </e>
+    </e>
+  </component>
+</project>
