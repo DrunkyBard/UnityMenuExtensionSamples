@@ -9,10 +9,7 @@
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
         <e p="Editor" t="Include">
-          <e p="ColorPointDrawer.cs" t="Include" />
-          <e p="EditorList.cs" t="Include" />
           <e p="MeshExtenderEditor.cs" t="Include" />
-          <e p="StarInspector.cs" t="Include" />
           <e p="TestObjectEditor.cs" t="Include" />
         </e>
         <e p="Scripts" t="Include">

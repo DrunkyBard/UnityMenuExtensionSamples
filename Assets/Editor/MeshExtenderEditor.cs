@@ -48,6 +48,8 @@ public sealed class MeshExtenderEditor : Editor
         var transform   = _gameObject.transform;
         var objPosition = transform.position;
         
+        Handles.matrix = transform.localToWorldMatrix;
+        
         var xAxis = transform.right;
         var yAxis = transform.up;
         var zAxis = transform.forward;
@@ -57,45 +59,16 @@ public sealed class MeshExtenderEditor : Editor
             var id = HandleUtility.nearestControl;
             _controlId.intValue = id;
 
-            if (id == _xPositiveId)
-            {
-                _controlPosition.vector3Value = objPosition + xAxis;
-            }
-            
-            if (id == _xNegativeId)
-            {
-                _controlPosition.vector3Value = objPosition - xAxis;
-            }
-            
-            if (id == _yPositiveId)
-            {
-                _controlPosition.vector3Value = objPosition + yAxis;
-            }
-            
-            if (id == _yNegativeId)
-            {
-                _controlPosition.vector3Value = objPosition - yAxis;
-            }
-            
-            if (id == _zPositiveId)
-            {
-                _controlPosition.vector3Value = objPosition + zAxis;
-            }
-            
-            if (id == _zNegativeId)
-            {
-                _controlPosition.vector3Value = objPosition - zAxis;
-            }
-            
+            _controlPosition.vector3Value = objPosition;
             _controlOriginalPosition.vector3Value = _controlPosition.vector3Value; 
         }
 
-        var xPositiveHandlePos = _controlId.intValue == _xPositiveId ? _controlPosition.vector3Value : objPosition + xAxis;
-        var xNegativeHandlePos = _controlId.intValue == _xNegativeId ? _controlPosition.vector3Value : objPosition - xAxis;
-        var yPositiveHandlePos = _controlId.intValue == _yPositiveId ? _controlPosition.vector3Value : objPosition + yAxis;
-        var yNegativeHandlePos = _controlId.intValue == _yNegativeId ? _controlPosition.vector3Value : objPosition - yAxis;
-        var zPositiveHandlePos = _controlId.intValue == _zPositiveId ? _controlPosition.vector3Value : objPosition + zAxis;
-        var zNegativeHandlePos = _controlId.intValue == _zNegativeId ? _controlPosition.vector3Value : objPosition - zAxis;
+        var xPositiveHandlePos = _controlId.intValue == _xPositiveId ? _controlPosition.vector3Value : objPosition;
+        var xNegativeHandlePos = _controlId.intValue == _xNegativeId ? _controlPosition.vector3Value : objPosition;
+        var yPositiveHandlePos = _controlId.intValue == _yPositiveId ? _controlPosition.vector3Value : objPosition;
+        var yNegativeHandlePos = _controlId.intValue == _yNegativeId ? _controlPosition.vector3Value : objPosition;
+        var zPositiveHandlePos = _controlId.intValue == _zPositiveId ? _controlPosition.vector3Value : objPosition;
+        var zNegativeHandlePos = _controlId.intValue == _zNegativeId ? _controlPosition.vector3Value : objPosition;
 
         var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), HandleSize);
         newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z;
@@ -144,7 +117,7 @@ public sealed class MeshExtenderEditor : Editor
         
         _controlOriginalPosition.vector3Value = newPosition;
         var newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        newCube.transform.position = newPosition;
+        newCube.transform.position = _gameObject.transform.localToWorldMatrix.MultiplyVector(newPosition);
         newCube.transform.rotation = _gameObject.transform.rotation;
     }
 
