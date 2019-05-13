@@ -8,9 +8,9 @@ public sealed class MeshExtenderEditor : Editor
     
     private TestObject _gameObject;
 
-    private SerializedProperty _xAxisPosition;
-    private SerializedProperty _yAxisPosition;
-    private SerializedProperty _zAxisPosition;
+    private SerializedProperty _controlId;
+    private SerializedProperty _controlPosition;
+    private SerializedProperty _controlOriginalPosition;
     
     private int _xPositiveId;
     private int _xNegativeId;
@@ -23,9 +23,9 @@ public sealed class MeshExtenderEditor : Editor
     {
         _gameObject = (TestObject)target;
 
-        _xAxisPosition = serializedObject.FindProperty(nameof(TestObject.XHandlePosition));
-        _yAxisPosition = serializedObject.FindProperty(nameof(TestObject.YHandlePosition));
-        _zAxisPosition = serializedObject.FindProperty(nameof(TestObject.ZHandlePosition));
+        _controlId               = serializedObject.FindProperty(nameof(TestObject.ControlId));
+        _controlPosition         = serializedObject.FindProperty(nameof(TestObject.ControlPosition));
+        _controlOriginalPosition = serializedObject.FindProperty(nameof(TestObject.OriginalPosition));
 
         _xPositiveId = GUIUtility.GetControlID(FocusType.Passive);
         _xNegativeId = GUIUtility.GetControlID(FocusType.Passive);
@@ -40,43 +40,112 @@ public sealed class MeshExtenderEditor : Editor
     {
         serializedObject.Update();
         
+        if (Event.current.type == EventType.MouseUp)
+        {
+            _controlId.intValue = -1;
+        }
+        
         var transform   = _gameObject.transform;
         var objPosition = transform.position;
-
+        
         var xAxis = transform.right;
         var yAxis = transform.up;
         var zAxis = transform.forward;
 
-        var xPositiveHandlePos = objPosition + xAxis;
-        var xNegativeHandlePos = objPosition - xAxis;
-        var yPositiveHandlePos = objPosition + yAxis;
-        var yNegativeHandlePos = objPosition - yAxis;
-        var zPositiveHandlePos = objPosition + zAxis;
-        var zNegativeHandlePos = objPosition - zAxis;
+        if (Event.current.type == EventType.MouseDown)
+        {
+            var id = HandleUtility.nearestControl;
+            _controlId.intValue = id;
+
+            if (id == _xPositiveId)
+            {
+                _controlPosition.vector3Value = objPosition + xAxis;
+            }
+            
+            if (id == _xNegativeId)
+            {
+                _controlPosition.vector3Value = objPosition - xAxis;
+            }
+            
+            if (id == _yPositiveId)
+            {
+                _controlPosition.vector3Value = objPosition + yAxis;
+            }
+            
+            if (id == _yNegativeId)
+            {
+                _controlPosition.vector3Value = objPosition - yAxis;
+            }
+            
+            if (id == _zPositiveId)
+            {
+                _controlPosition.vector3Value = objPosition + zAxis;
+            }
+            
+            if (id == _zNegativeId)
+            {
+                _controlPosition.vector3Value = objPosition - zAxis;
+            }
+            
+            _controlOriginalPosition.vector3Value = _controlPosition.vector3Value; 
+        }
+
+        var xPositiveHandlePos = _controlId.intValue == _xPositiveId ? _controlPosition.vector3Value : objPosition + xAxis;
+        var xNegativeHandlePos = _controlId.intValue == _xNegativeId ? _controlPosition.vector3Value : objPosition - xAxis;
+        var yPositiveHandlePos = _controlId.intValue == _yPositiveId ? _controlPosition.vector3Value : objPosition + yAxis;
+        var yNegativeHandlePos = _controlId.intValue == _yNegativeId ? _controlPosition.vector3Value : objPosition - yAxis;
+        var zPositiveHandlePos = _controlId.intValue == _zPositiveId ? _controlPosition.vector3Value : objPosition + zAxis;
+        var zNegativeHandlePos = _controlId.intValue == _zNegativeId ? _controlPosition.vector3Value : objPosition - zAxis;
 
         var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), HandleSize);
-        var newXNegativePos = DrawFreeMoveHandle(_xNegativeId, xNegativeHandlePos, Quaternion.LookRotation(-xAxis), HandleSize);
-        var newYPositivePos = DrawFreeMoveHandle(_yPositiveId, yPositiveHandlePos, Quaternion.LookRotation(yAxis), HandleSize);
-        var newYNegativePos = DrawFreeMoveHandle(_yNegativeId, yNegativeHandlePos, Quaternion.LookRotation(-yAxis), HandleSize);
-        var newZPositivePos = DrawFreeMoveHandle(_zPositiveId, zPositiveHandlePos, Quaternion.LookRotation(zAxis), HandleSize);
-        var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), HandleSize);
+        newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z;
         
-        CheckDiff(xPositiveHandlePos.x, newXPositivePos.x, xAxis);
-        CheckDiff(xNegativeHandlePos.x, newXNegativePos.x, -xAxis);
-        CheckDiff(yPositiveHandlePos.y, newYPositivePos.y, yAxis);
-        CheckDiff(yNegativeHandlePos.y, newYNegativePos.y, -yAxis);
-        CheckDiff(zPositiveHandlePos.z, newZPositivePos.z, zAxis);
-        CheckDiff(zNegativeHandlePos.z, newZNegativePos.z, -zAxis);
+        var newXNegativePos = DrawFreeMoveHandle(_xNegativeId, xNegativeHandlePos, Quaternion.LookRotation(-xAxis), HandleSize);
+        newXNegativePos.y = xNegativeHandlePos.y; newXNegativePos.z = xNegativeHandlePos.z;
+        
+        var newYPositivePos = DrawFreeMoveHandle(_yPositiveId, yPositiveHandlePos, Quaternion.LookRotation(yAxis), HandleSize);
+        newYPositivePos.x = yPositiveHandlePos.x; newYPositivePos.z = yPositiveHandlePos.z;
+        
+        var newYNegativePos = DrawFreeMoveHandle(_yNegativeId, yNegativeHandlePos, Quaternion.LookRotation(-yAxis), HandleSize);
+        newYNegativePos.x = yNegativeHandlePos.x; newYNegativePos.z = yNegativeHandlePos.z;
+        
+        var newZPositivePos = DrawFreeMoveHandle(_zPositiveId, zPositiveHandlePos, Quaternion.LookRotation(zAxis), HandleSize);
+        newZPositivePos.x = zPositiveHandlePos.x; newZPositivePos.y = zPositiveHandlePos.y;
+        
+        var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), HandleSize);
+        newZNegativePos.x = zNegativeHandlePos.x; newZNegativePos.y = zNegativeHandlePos.y;
+
+        CheckDiff(_xPositiveId, _controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos,xAxis);
+        CheckDiff(_xNegativeId, _controlOriginalPosition.vector3Value.x, xNegativeHandlePos, newXNegativePos.x, newXNegativePos, -xAxis);
+        CheckDiff(_yPositiveId, _controlOriginalPosition.vector3Value.y, yPositiveHandlePos, newYPositivePos.y, newYPositivePos, yAxis);
+        CheckDiff(_yNegativeId, _controlOriginalPosition.vector3Value.y, yNegativeHandlePos, newYNegativePos.y, newYNegativePos, -yAxis);
+        CheckDiff(_zPositiveId, _controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis);
+        CheckDiff(_zNegativeId, _controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis);
+
+        serializedObject.ApplyModifiedProperties();
     }
 
-    private void CheckDiff(float originAxisPosition, float newAxisPosition, Vector3 direction)
+    private void CheckDiff(int controlId, float originAxisPosition, Vector3 originalPosition, float newAxisPosition, Vector3 newPosition, Vector3 direction)
     {
-        if (Mathf.Abs(originAxisPosition - newAxisPosition) < 2f)
+        if (originalPosition == newPosition)
+        {
+            return;
+        }
+
+        if (!Mathf.Approximately(originAxisPosition, newAxisPosition))
+        {
+            _controlPosition.vector3Value = newPosition;
+        }
+        
+        if (Mathf.Abs(originAxisPosition - newAxisPosition) < 10f)
         {
             return;
         }
         
-        
+        _controlOriginalPosition.vector3Value = newPosition;
+        var newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        newCube.transform.position = newPosition;
+        newCube.transform.rotation = _gameObject.transform.rotation;
     }
 
     private Vector3 DrawFreeMoveHandle(int controlId, Vector3 position, Quaternion rotation, float size)
