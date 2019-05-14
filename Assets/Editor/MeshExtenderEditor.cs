@@ -4,7 +4,8 @@ using UnityEngine;
 [CustomEditor(typeof(TestObject))]
 public sealed class MeshExtenderEditor : Editor
 {
-    private const int HandleSize = 5;
+    private const float HandleSize = 5f;
+    private const float ActionDistance = 5f;
     
     private TestObject _gameObject;
 
@@ -48,8 +49,6 @@ public sealed class MeshExtenderEditor : Editor
         var transform   = _gameObject.transform;
         var objPosition = transform.position;
         
-        Handles.matrix = transform.localToWorldMatrix;
-        
         var xAxis = transform.right;
         var yAxis = transform.up;
         var zAxis = transform.forward;
@@ -63,12 +62,12 @@ public sealed class MeshExtenderEditor : Editor
             _controlOriginalPosition.vector3Value = _controlPosition.vector3Value; 
         }
 
-        var xPositiveHandlePos = _controlId.intValue == _xPositiveId ? _controlPosition.vector3Value : objPosition;
-        var xNegativeHandlePos = _controlId.intValue == _xNegativeId ? _controlPosition.vector3Value : objPosition;
-        var yPositiveHandlePos = _controlId.intValue == _yPositiveId ? _controlPosition.vector3Value : objPosition;
-        var yNegativeHandlePos = _controlId.intValue == _yNegativeId ? _controlPosition.vector3Value : objPosition;
-        var zPositiveHandlePos = _controlId.intValue == _zPositiveId ? _controlPosition.vector3Value : objPosition;
-        var zNegativeHandlePos = _controlId.intValue == _zNegativeId ? _controlPosition.vector3Value : objPosition;
+        var xPositiveHandlePos = DefineHandlePosition(_xPositiveId);
+        var xNegativeHandlePos = DefineHandlePosition(_xNegativeId);
+        var yPositiveHandlePos = DefineHandlePosition(_yPositiveId);
+        var yNegativeHandlePos = DefineHandlePosition(_yNegativeId);
+        var zPositiveHandlePos = DefineHandlePosition(_zPositiveId);
+        var zNegativeHandlePos = DefineHandlePosition(_zNegativeId);
 
         var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), HandleSize);
         newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z;
@@ -88,19 +87,27 @@ public sealed class MeshExtenderEditor : Editor
         var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), HandleSize);
         newZNegativePos.x = zNegativeHandlePos.x; newZNegativePos.y = zNegativeHandlePos.y;
 
-        CheckDiff(_xPositiveId, _controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos,xAxis);
-        CheckDiff(_xNegativeId, _controlOriginalPosition.vector3Value.x, xNegativeHandlePos, newXNegativePos.x, newXNegativePos, -xAxis);
-        CheckDiff(_yPositiveId, _controlOriginalPosition.vector3Value.y, yPositiveHandlePos, newYPositivePos.y, newYPositivePos, yAxis);
-        CheckDiff(_yNegativeId, _controlOriginalPosition.vector3Value.y, yNegativeHandlePos, newYNegativePos.y, newYNegativePos, -yAxis);
-        CheckDiff(_zPositiveId, _controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis);
-        CheckDiff(_zNegativeId, _controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos, xAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.x, xNegativeHandlePos, newXNegativePos.x, newXNegativePos, -xAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.y, yPositiveHandlePos, newYPositivePos.y, newYPositivePos, yAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.y, yNegativeHandlePos, newYNegativePos.y, newYNegativePos, -yAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis, objPosition);
 
         serializedObject.ApplyModifiedProperties();
     }
 
-    private void CheckDiff(int controlId, float originAxisPosition, Vector3 originalPosition, float newAxisPosition, Vector3 newPosition, Vector3 direction)
+    private Vector3 DefineHandlePosition(int controlId)
+        => _controlId.intValue == controlId ? _controlPosition.vector3Value : _gameObject.transform.position;
+
+    private void CheckDiff(
+        float originAxisPosition, 
+        Vector3 oldPosition, 
+        float newAxisPosition, Vector3 newPosition, 
+        Vector3 direction, 
+        Vector3 objPosition)
     {
-        if (originalPosition == newPosition)
+        if (oldPosition == newPosition)
         {
             return;
         }
@@ -110,15 +117,41 @@ public sealed class MeshExtenderEditor : Editor
             _controlPosition.vector3Value = newPosition;
         }
         
-        if (Mathf.Abs(originAxisPosition - newAxisPosition) < 10f)
+        if (Mathf.Abs(originAxisPosition - newAxisPosition) < ActionDistance)
         {
             return;
         }
-        
+
         _controlOriginalPosition.vector3Value = newPosition;
-        var newCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        newCube.transform.position = _gameObject.transform.localToWorldMatrix.MultiplyVector(newPosition);
-        newCube.transform.rotation = _gameObject.transform.rotation;
+
+        var angle = Vector3.Angle(newPosition - oldPosition, direction);
+        
+        if (Mathf.Approximately(angle, 180f))
+        {
+            var hits = Physics.RaycastAll(newPosition + direction / 2, direction, HandleSize);
+
+            foreach (var hit in hits)
+            {
+                if (hit.collider.gameObject == _gameObject.gameObject)
+                {
+                    continue;
+                }
+                
+                if (hit.collider.gameObject.GetComponent<TestObject>() != null)
+                {
+                    DestroyImmediate(hit.collider.gameObject, false);
+                }
+            }
+        }
+        else
+        {
+            var newObject          = Instantiate(_gameObject);
+            var newObjectTransform = newObject.transform;
+            var originalTransform  = _gameObject.transform;
+
+            newObjectTransform.position = newPosition;
+            newObjectTransform.rotation = originalTransform.rotation;            
+        }
     }
 
     private Vector3 DrawFreeMoveHandle(int controlId, Vector3 position, Quaternion rotation, float size)

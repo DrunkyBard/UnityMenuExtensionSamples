@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ContentModelStore">
-    <e p="C:\Users\satta\.Rider2019.1\config\extensions" t="IncludeRecursive" />
-    <e p="C:\Users\satta\.Rider2019.1\system\extResources" t="IncludeRecursive" />
-    <e p="C:\Users\satta\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UnityMenuExtensionSamples.-2007475948.00" t="ExcludeRecursive" />
-    <e p="E:\GIT_REPO_UNITY\UnityMenuExtensionSamples" t="IncludeRecursive">
+    <e p="C:\GIT_REPO_UNITY\UnityMenuExtensionSamples" t="IncludeRecursive">
       <e p="Assembly-CSharp-Editor.csproj" t="IncludeRecursive" />
       <e p="Assembly-CSharp.csproj" t="IncludeRecursive" />
       <e p="Assets" t="Include">
@@ -21,5 +18,9 @@
       <e p="Temp\bin" t="ExcludeRecursive" />
       <e p="UnityMenuExtensionSamples.sln" t="IncludeFlat" />
     </e>
+    <e p="C:\Users\sattar.imamov\.Rider2019.1\config\extensions" t="IncludeRecursive" />
+    <e p="C:\Users\sattar.imamov\.Rider2019.1\config\scratches" t="IncludeRecursive" />
+    <e p="C:\Users\sattar.imamov\.Rider2019.1\system\extResources" t="IncludeRecursive" />
+    <e p="C:\Users\sattar.imamov\.Rider2019.1\system\resharper-host\local\Transient\ReSharperHost\v191\SolutionCaches\_UnityMenuExtensionSamples.-96433390.00" t="ExcludeRecursive" />
   </component>
 </project>
