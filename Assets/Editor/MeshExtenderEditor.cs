@@ -125,7 +125,7 @@ public sealed class MeshExtenderEditor : Editor
         
         var angle = Vector3.Angle(newPosition - oldPosition, direction);
 
-        if (Mathf.Approximately(angle, 180f)) // Because one handle stick only one handle, so there is only two options: 180 and 0 degrees
+        if (Mathf.Approximately(angle, 180f)) // Because handle stick only one axis, so there is only two options: 180 and 0 degrees
         {
             var hits = Physics.RaycastAll(newPosition, direction, Vector3.Distance(newPosition, _controlOriginalPosition.vector3Value));
             _controlOriginalPosition.vector3Value -= direction * ActionDistance;
