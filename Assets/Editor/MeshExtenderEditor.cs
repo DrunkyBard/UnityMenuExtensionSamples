@@ -121,13 +121,12 @@ public sealed class MeshExtenderEditor : Editor
         {
             return;
         }
-
-        _controlOriginalPosition.vector3Value = newPosition;
-
+        
         var angle = Vector3.Angle(newPosition - oldPosition, direction);
         
         if (Mathf.Approximately(angle, 180f))
         {
+            _controlOriginalPosition.vector3Value -= direction * ActionDistance;
             var hits = Physics.RaycastAll(newPosition + direction / 2, direction, HandleSize);
 
             foreach (var hit in hits)
@@ -145,11 +144,13 @@ public sealed class MeshExtenderEditor : Editor
         }
         else
         {
+            _controlOriginalPosition.vector3Value += direction * ActionDistance;
+
             var newObject          = Instantiate(_gameObject);
             var newObjectTransform = newObject.transform;
             var originalTransform  = _gameObject.transform;
 
-            newObjectTransform.position = newPosition;
+            newObjectTransform.position = _controlOriginalPosition.vector3Value;
             newObjectTransform.rotation = originalTransform.rotation;            
         }
     }
