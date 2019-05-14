@@ -70,7 +70,7 @@ public sealed class MeshExtenderEditor : Editor
         var zNegativeHandlePos = DefineHandlePosition(_zNegativeId);
 
         var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), HandleSize);
-        newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z;
+        newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z; // Adjust coordinates to stick only to one axis
         
         var newXNegativePos = DrawFreeMoveHandle(_xNegativeId, xNegativeHandlePos, Quaternion.LookRotation(-xAxis), HandleSize);
         newXNegativePos.y = xNegativeHandlePos.y; newXNegativePos.z = xNegativeHandlePos.z;
@@ -87,12 +87,12 @@ public sealed class MeshExtenderEditor : Editor
         var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), HandleSize);
         newZNegativePos.x = zNegativeHandlePos.x; newZNegativePos.y = zNegativeHandlePos.y;
 
-        CheckDiff(_controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos, xAxis, objPosition);
-        CheckDiff(_controlOriginalPosition.vector3Value.x, xNegativeHandlePos, newXNegativePos.x, newXNegativePos, -xAxis, objPosition);
-        CheckDiff(_controlOriginalPosition.vector3Value.y, yPositiveHandlePos, newYPositivePos.y, newYPositivePos, yAxis, objPosition);
-        CheckDiff(_controlOriginalPosition.vector3Value.y, yNegativeHandlePos, newYNegativePos.y, newYNegativePos, -yAxis, objPosition);
-        CheckDiff(_controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis, objPosition);
-        CheckDiff(_controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis, objPosition);
+        CheckDiff(_controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos, xAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.x, xNegativeHandlePos, newXNegativePos.x, newXNegativePos, -xAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.y, yPositiveHandlePos, newYPositivePos.y, newYPositivePos, yAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.y, yNegativeHandlePos, newYNegativePos.y, newYNegativePos, -yAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis);
+        CheckDiff(_controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis);
 
         serializedObject.ApplyModifiedProperties();
     }
@@ -104,8 +104,7 @@ public sealed class MeshExtenderEditor : Editor
         float originAxisPosition, 
         Vector3 oldPosition, 
         float newAxisPosition, Vector3 newPosition, 
-        Vector3 direction, 
-        Vector3 objPosition)
+        Vector3 direction)
     {
         if (oldPosition == newPosition)
         {
@@ -124,7 +123,7 @@ public sealed class MeshExtenderEditor : Editor
         
         var angle = Vector3.Angle(newPosition - oldPosition, direction);
         
-        if (Mathf.Approximately(angle, 180f))
+        if (Mathf.Approximately(angle, 180f)) // Because one handle stick only one handle, so there is only two options: 180 and 0 degrees
         {
             _controlOriginalPosition.vector3Value -= direction * ActionDistance;
             var hits = Physics.RaycastAll(newPosition + direction / 2, direction, HandleSize);
