@@ -4,7 +4,7 @@ using UnityEngine;
 [CustomEditor(typeof(TestObject))]
 public sealed class MeshExtenderEditor : Editor
 {
-    private const float HandleSize = 5f;
+    private const float HandleSize = 1.5f;
     private const float ActionDistance = 5f;
     
     private TestObject _gameObject;
@@ -61,7 +61,7 @@ public sealed class MeshExtenderEditor : Editor
             _controlPosition.vector3Value = objPosition;
             _controlOriginalPosition.vector3Value = _controlPosition.vector3Value; 
         }
-
+        
         var xPositiveHandlePos = DefineHandlePosition(_xPositiveId);
         var xNegativeHandlePos = DefineHandlePosition(_xNegativeId);
         var yPositiveHandlePos = DefineHandlePosition(_yPositiveId);
@@ -69,22 +69,24 @@ public sealed class MeshExtenderEditor : Editor
         var zPositiveHandlePos = DefineHandlePosition(_zPositiveId);
         var zNegativeHandlePos = DefineHandlePosition(_zNegativeId);
 
-        var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), HandleSize);
+        var handleSize = HandleUtility.GetHandleSize(xPositiveHandlePos) * HandleSize;
+
+        var newXPositivePos = DrawFreeMoveHandle(_xPositiveId, xPositiveHandlePos, Quaternion.LookRotation(xAxis), handleSize);
         newXPositivePos.y = xPositiveHandlePos.y; newXPositivePos.z = xPositiveHandlePos.z; // Adjust coordinates to stick only to one axis
         
-        var newXNegativePos = DrawFreeMoveHandle(_xNegativeId, xNegativeHandlePos, Quaternion.LookRotation(-xAxis), HandleSize);
+        var newXNegativePos = DrawFreeMoveHandle(_xNegativeId, xNegativeHandlePos, Quaternion.LookRotation(-xAxis), handleSize);
         newXNegativePos.y = xNegativeHandlePos.y; newXNegativePos.z = xNegativeHandlePos.z;
         
-        var newYPositivePos = DrawFreeMoveHandle(_yPositiveId, yPositiveHandlePos, Quaternion.LookRotation(yAxis), HandleSize);
+        var newYPositivePos = DrawFreeMoveHandle(_yPositiveId, yPositiveHandlePos, Quaternion.LookRotation(yAxis), handleSize);
         newYPositivePos.x = yPositiveHandlePos.x; newYPositivePos.z = yPositiveHandlePos.z;
         
-        var newYNegativePos = DrawFreeMoveHandle(_yNegativeId, yNegativeHandlePos, Quaternion.LookRotation(-yAxis), HandleSize);
+        var newYNegativePos = DrawFreeMoveHandle(_yNegativeId, yNegativeHandlePos, Quaternion.LookRotation(-yAxis), handleSize);
         newYNegativePos.x = yNegativeHandlePos.x; newYNegativePos.z = yNegativeHandlePos.z;
         
-        var newZPositivePos = DrawFreeMoveHandle(_zPositiveId, zPositiveHandlePos, Quaternion.LookRotation(zAxis), HandleSize);
+        var newZPositivePos = DrawFreeMoveHandle(_zPositiveId, zPositiveHandlePos, Quaternion.LookRotation(zAxis), handleSize);
         newZPositivePos.x = zPositiveHandlePos.x; newZPositivePos.y = zPositiveHandlePos.y;
         
-        var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), HandleSize);
+        var newZNegativePos = DrawFreeMoveHandle(_zNegativeId, zNegativeHandlePos, Quaternion.LookRotation(-zAxis), handleSize);
         newZNegativePos.x = zNegativeHandlePos.x; newZNegativePos.y = zNegativeHandlePos.y;
 
         CheckDiff(_controlOriginalPosition.vector3Value.x, xPositiveHandlePos, newXPositivePos.x, newXPositivePos, xAxis);
@@ -122,11 +124,11 @@ public sealed class MeshExtenderEditor : Editor
         }
         
         var angle = Vector3.Angle(newPosition - oldPosition, direction);
-        
+
         if (Mathf.Approximately(angle, 180f)) // Because one handle stick only one handle, so there is only two options: 180 and 0 degrees
         {
+            var hits = Physics.RaycastAll(newPosition, direction, Vector3.Distance(newPosition, _controlOriginalPosition.vector3Value));
             _controlOriginalPosition.vector3Value -= direction * ActionDistance;
-            var hits = Physics.RaycastAll(newPosition + direction / 2, direction, HandleSize);
 
             foreach (var hit in hits)
             {
