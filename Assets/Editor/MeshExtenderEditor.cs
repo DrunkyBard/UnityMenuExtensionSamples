@@ -96,7 +96,7 @@ public sealed class MeshExtenderEditor : Editor
         CheckDiff(_controlOriginalPosition.vector3Value.z, zPositiveHandlePos, newZPositivePos.z, newZPositivePos, zAxis);
         CheckDiff(_controlOriginalPosition.vector3Value.z, zNegativeHandlePos, newZNegativePos.z, newZNegativePos, -zAxis);
 
-        serializedObject.ApplyModifiedProperties();
+        serializedObject.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private Vector3 DefineHandlePosition(int controlId)
@@ -139,20 +139,22 @@ public sealed class MeshExtenderEditor : Editor
                 
                 if (hit.collider.gameObject.GetComponent<TestObject>() != null)
                 {
-                    DestroyImmediate(hit.collider.gameObject, false);
+                    Undo.DestroyObjectImmediate(hit.collider.gameObject);
                 }
             }
         }
         else
         {
             _controlOriginalPosition.vector3Value += direction * ActionDistance;
-
-            var newObject          = Instantiate(_gameObject);
+            
+            var newObject          = Instantiate(_gameObject.gameObject);
             var newObjectTransform = newObject.transform;
             var originalTransform  = _gameObject.transform;
 
             newObjectTransform.position = _controlOriginalPosition.vector3Value;
-            newObjectTransform.rotation = originalTransform.rotation;            
+            newObjectTransform.rotation = originalTransform.rotation;
+
+            Undo.RegisterCreatedObjectUndo(newObject, "Create copied object");
         }
     }
 
