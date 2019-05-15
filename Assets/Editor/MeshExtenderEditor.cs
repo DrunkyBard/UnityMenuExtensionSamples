@@ -7,7 +7,7 @@ public sealed class MeshExtenderEditor : Editor
     private const float HandleSize = 1.5f;
     private const float ActionDistance = 5f;
     
-    private TestObject _gameObject;
+    private TestObject _testObject;
 
     private SerializedProperty _controlId;
     private SerializedProperty _controlPosition;
@@ -22,7 +22,7 @@ public sealed class MeshExtenderEditor : Editor
     
     private void OnEnable()
     {
-        _gameObject = (TestObject)target;
+        _testObject = (TestObject)target;
 
         _controlId               = serializedObject.FindProperty(nameof(TestObject.ControlId));
         _controlPosition         = serializedObject.FindProperty(nameof(TestObject.ControlPosition));
@@ -46,7 +46,7 @@ public sealed class MeshExtenderEditor : Editor
             _controlId.intValue = -1;
         }
         
-        var transform   = _gameObject.transform;
+        var transform   = _testObject.transform;
         var objPosition = transform.position;
         
         var xAxis = transform.right;
@@ -100,7 +100,7 @@ public sealed class MeshExtenderEditor : Editor
     }
 
     private Vector3 DefineHandlePosition(int controlId)
-        => _controlId.intValue == controlId ? _controlPosition.vector3Value : _gameObject.transform.position;
+        => _controlId.intValue == controlId ? _controlPosition.vector3Value : _testObject.transform.position;
 
     private void CheckDiff(
         float originAxisPosition, 
@@ -132,7 +132,7 @@ public sealed class MeshExtenderEditor : Editor
 
             foreach (var hit in hits)
             {
-                if (hit.collider.gameObject == _gameObject.gameObject)
+                if (hit.collider.gameObject == _testObject.gameObject)
                 {
                     continue;
                 }
@@ -147,9 +147,9 @@ public sealed class MeshExtenderEditor : Editor
         {
             _controlOriginalPosition.vector3Value += direction * ActionDistance;
             
-            var newObject          = Instantiate(_gameObject.gameObject);
+            var newObject          = Instantiate(_testObject.gameObject);
             var newObjectTransform = newObject.transform;
-            var originalTransform  = _gameObject.transform;
+            var originalTransform  = _testObject.transform;
 
             newObjectTransform.position = _controlOriginalPosition.vector3Value;
             newObjectTransform.rotation = originalTransform.rotation;
